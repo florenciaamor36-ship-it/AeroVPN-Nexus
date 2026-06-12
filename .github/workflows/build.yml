@@ -2,10 +2,9 @@ name: Build & Release APK
 
 on:
   push:
-    tags:
-      - 'v*'
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
@@ -14,6 +13,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Extract Source
+        run: |
+          tar -xzf app_src.tar.gz
+          ls -R
 
       - name: Setup JDK
         uses: actions/setup-java@v4
@@ -30,34 +34,8 @@ jobs:
       - name: Build Release APK
         run: ./gradlew clean assembleRelease --no-daemon
 
-      - name: Get Version Name
-        id: version
-        run: |
-          VERSION=$(grep -oP "versionName '\K[^']+" app/build.gradle)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
       - name: Upload APK to Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: app-release.apk
           path: app/build/outputs/apk/release/app-release-unsigned.apk
-
-      - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: app/build/outputs/apk/release/app-release-unsigned.apk
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload APK to Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: app/build/outputs/apk/release/app-release-unsigned.apk
-          asset_name: AeroVPN-${{ steps.version.outputs.version }}.apk
-          asset_content_type: application/vnd.android.package-archive
