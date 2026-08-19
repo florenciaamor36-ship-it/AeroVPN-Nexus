@@ -44,9 +44,24 @@ jobs:
       - name: Build Release APK
         run: gradle clean assembleRelease -x lintVitalRelease --no-daemon
 
+      - name: Sign APKs
+        run: |
+          keytool -genkeypair -v -keystore "$RUNNER_TEMP/aerovpn-release.keystore" \
+            -alias aerovpn -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass aerovpn123 -keypass aerovpn123 \
+            -dname "CN=AeroVPN, OU=Release, O=AeroVPN, L=Argentina, ST=Buenos Aires, C=AR"
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)
+          test -n "$APKSIGNER"
+          for apk in app/build/outputs/apk/release/*-unsigned.apk; do
+            signed="${apk%-unsigned.apk}.apk"
+            "$APKSIGNER" sign --ks "$RUNNER_TEMP/aerovpn-release.keystore" \
+              --ks-pass pass:aerovpn123 --key-pass pass:aerovpn123 \
+              --out "$signed" "$apk"
+          done
+
       - name: Upload APK to Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-apks
-          path: app/build/outputs/apk/release/*.apk
+          name: app-release-apks-signed
+          path: app/build/outputs/apk/release/*-release.apk
           if-no-files-found: error
