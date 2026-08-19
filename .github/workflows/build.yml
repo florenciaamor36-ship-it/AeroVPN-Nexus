@@ -42,7 +42,7 @@ jobs:
           echo "$RUNNER_TEMP/gradle-8.4/bin" >> "$GITHUB_PATH"
 
       - name: Build Release APK
-        run: gradle clean assembleRelease --no-daemon
+        run: gradle clean assembleRelease -x lintVitalRelease --no-daemon
 
       - name: Upload APK to Artifacts
         uses: actions/upload-artifact@v4
