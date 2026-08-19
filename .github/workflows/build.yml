@@ -17,6 +17,11 @@ jobs:
       - name: Extract Source
         run: |
           tar -xzf app_src.tar.gz
+          # The source archive contains stale, unavailable Maven coordinates.
+          sed -i \
+            -e '/com.wireguard.android:tunnel/d' \
+            -e '/com.github.2dust:v2rayNG/d' \
+            app/build.gradle
           ls -R
 
       - name: Setup JDK
