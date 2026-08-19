@@ -42,7 +42,10 @@ jobs:
           echo "$RUNNER_TEMP/gradle-8.4/bin" >> "$GITHUB_PATH"
 
       - name: Build Release APK
-        run: gradle clean assembleRelease -x lintVitalRelease --no-daemon
+        env:
+          # Match gradle.properties and prevent worker/GC thrashing on CI.
+          GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx2g\ -XX:MaxMetaspaceSize=768m\ -XX:+UseG1GC\ -Dfile.encoding=UTF-8
+        run: gradle clean assembleRelease -x lintVitalRelease --no-daemon --max-workers=2 --no-parallel
 
       - name: Sign APKs
         run: |
