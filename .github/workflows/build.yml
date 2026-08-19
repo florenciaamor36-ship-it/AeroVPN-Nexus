@@ -21,6 +21,8 @@ jobs:
           sed -i \
             -e '/com.wireguard.android:tunnel/d' \
             -e '/com.github.2dust:v2rayNG/d' \
+            -e 's/minifyEnabled true/minifyEnabled false/' \
+            -e 's/shrinkResources true/shrinkResources false/' \
             app/build.gradle
           ls -R
 
