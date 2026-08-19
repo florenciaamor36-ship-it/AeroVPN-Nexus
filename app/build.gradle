@@ -133,14 +133,12 @@ dependencies {
     ksp 'androidx.room:room-compiler:2.6.1' // Fix #14: replaced annotationProcessor with ksp
 
     // VPN Libraries
-    // WireGuard - Fix #19: official WireGuard Android tunnel library
-    implementation 'com.wireguard.android:tunnel:1.0.20230705'
+    // WireGuard backend is optional and loaded at runtime when bundled.
     
     // JSCH for SSH - Fix #16: upgraded from 0.1.55 to mwiede fork with security fixes
     implementation 'com.github.mwiede:jsch:0.2.16'
     
-    // V2Ray core - Fix #18: use tun2socks + v2ray-core via JitPack
-    implementation 'com.github.2dust:v2rayNG:1.8.19'
+    // V2Ray/Xray core is optional and launched as a native binary when bundled.
     // Fallback: implementation files('libs/v2ray-core.aar')
     
     // Shadowsocks library
